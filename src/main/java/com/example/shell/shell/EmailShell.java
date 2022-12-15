@@ -3,6 +3,7 @@ package com.example.shell.shell;
 import com.example.shell.service.EmailService;
 import com.example.shell.service.ExcelService;
 import com.example.shell.type.Subscriber;
+import jakarta.mail.MessagingException;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
@@ -36,6 +37,15 @@ public class EmailShell {
                     " ví dụ 2: "+subscriber.getGive2()+",\n "+
                     " ví dụ 3: "+subscriber.getGive3();
             emailService.sendEmail(pairingSubscriber.getEmail(),"[Y-TEAM] Noel may mắn",content);
+        }
+    }
+
+    @ShellMethod("Send email test.")
+    public void testEmail(){
+        try {
+            emailService.sendEmailHtml("tietnhathung@gmail.com","[Y-TEAM] Noel may mắn","content");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
