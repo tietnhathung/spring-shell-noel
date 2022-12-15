@@ -1,6 +1,8 @@
 package com.example.shell.service.Impl;
 
 import com.example.shell.service.EmailService;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -40,20 +43,35 @@ public class EmailServiceImpl implements EmailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(txt);
-        emailSender.send(message);
-//        executorService.submit(() -> emailSender.send(message));
+        executorService.submit(() -> {
+            try {
+                emailSender.send(message);
+            }catch (Exception ex){
+                System.out.println(ex.getMessage());
+            }
+        });
     }
 
     @Override
-    public void sendEmailHtml(String to, String subject,String txt) throws MessagingException, IOException {
+    public void sendEmailHtml(String to, String subject, Map<String, String> gift) throws MessagingException, IOException {
         Resource resource = resourceLoader.getResource("classpath:noel.html");
-        String text = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        String htmlRaw = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
+        Handlebars handlebars = new Handlebars();
+        Template template = handlebars.compileInline(htmlRaw);
+        String text = template.apply(gift);
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(text, true);
         emailSender.send(message);
+        executorService.submit(() -> {
+            try {
+                emailSender.send(message);
+            }catch (Exception ex){
+                System.out.println(ex.getMessage());
+            }
+        });
     }
 }

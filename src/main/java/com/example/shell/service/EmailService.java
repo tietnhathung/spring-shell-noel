@@ -4,8 +4,9 @@ import jakarta.mail.MessagingException;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface EmailService {
     void sendEmail(String to, String subject,String txt);
-    public void sendEmailHtml(String to, String subject,String txt) throws MessagingException, IOException;
+    void sendEmailHtml(String to, String subject, Map<String, String> gifts) throws MessagingException, IOException;
 }
